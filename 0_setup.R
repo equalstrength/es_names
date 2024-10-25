@@ -11,7 +11,7 @@ R.version
 # Run the lines below to check if you have them installed and, if not, install them
 
 # List of required packages
-list_packages <- c("tidyverse", "haven", "gt", "sjPlot")
+list_packages <- c("tidyverse", "haven", "gt", "cowplot")
 
 # Get list of packages that need to be installed
 new_packages <- list_packages[!(list_packages %in% installed.packages()[,"Package"])]

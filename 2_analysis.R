@@ -45,42 +45,26 @@ get_plot <- function(resp_var, title = "", rm_countries = NULL){
   
   estimates |>
     filter(term != "(Intercept)")  |>
-    ggplot(aes(x = term, y = estimate, ymin = conf.low, ymax = conf.high, color = country_survey)) +
-    geom_hline(yintercept = 0, linetype='dashed') +
-    geom_pointrange() +
+    ggplot(aes(y = term, x = estimate, xmin = conf.low, xmax = conf.high)) +
+    geom_vline(xintercept = 0, linetype='dashed') +
+    geom_pointrange(aes(color = country_survey, shape = country_survey)) +
     scale_color_brewer(palette = "Set3") +
-    coord_flip() +
-    #ylim(-0.6, 0.2) +
+    scale_shape_manual(values=1:9)+
     theme_classic() +
-    theme(plot.background = element_blank()) +
+    theme(legend.position = "bottom",
+          legend.title=element_blank(),
+          axis.text = element_text(size = 11),
+          title = element_text(size = 13)) +
     labs(title = title, y = NULL, x = NULL) +
     facet_wrap(~region_cntry, ncol = 1, strip.position = 'left', scales = "free_y")
 }
 
 plot_sex <- get_plot("cong_sex", title = "Sex")
 plot_ses <- get_plot("ladder_adj", title = "SES")
-plot_skin <- get_plot("skin_adj", title = "Skin" , rm_countries = c("Czech Republic", "Hungary"))
+plot_skin <- get_plot("skin_adj", title = "Skin colour" , rm_countries = c("Czech Republic", "Hungary"))
 plot_relig <- get_plot("cong_religion", title = "Religion", rm_countries = c("Czech Republic", "Hungary"))
 
-legend <- get_plot_component(
-  plot_ses +  
-  guides(color=guide_legend(nrow=1,byrow=TRUE)) +
-  theme(legend.position = "bottom")+
-  theme(legend.title=element_blank()), 
-  "guide-box-bottom",
-  return_all = TRUE
-)
-
-grid <- 
-  plot_grid(
-    plot_sex + theme(legend.position = "none"),
-    plot_ses + theme(legend.position = "none"), 
-    plot_skin + theme(legend.position = "none"), 
-    plot_relig + theme(legend.position = "none"), 
-    ncol = 2
-  )
-
-fig_ols  <- plot_grid(grid, legend, ncol = 1, rel_heights = c(3, .4))
+fig_ols <- plot_grid(plot_sex, plot_ses, plot_skin, plot_relig,  ncol = 2)
 
 ggsave(fig_ols, filename =  "./img/fig_ols.png")
 
