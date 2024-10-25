@@ -10,7 +10,7 @@ library(cowplot) # arrange multiple plots
 
 # Importing working dataset
 # Please see 1_process.R for the data processing that generated this file
-df <- read_sav("./data/ES2_NameSurvey_2024-10-17.sav")
+df <- read_sav("./data/ES2_NameSurvey_2024-10-25.sav")
 
 
 ###############################################################################
@@ -32,7 +32,11 @@ get_plot <- function(resp_var, title = "", rm_countries = NULL){
   estimates <- 
     df |>
       filter(!country_survey %in% rm_countries) |>
-      mutate(cntry = if_else(region_es == "Majority", "_Majority", country_name)) |>
+      mutate(cntry = case_when(
+        region_es == "Majority" ~ "_Majority",
+        country_name %in% c("Dutch Antilles", "Surinam") ~ "Black NL",
+        .default = country_name
+      )) |>
       group_by(country_survey) |>
       group_modify(~ broom::tidy(lm(get(resp_var) ~ cntry, weights = Weging, data = .x), conf.int = TRUE)) |>
       mutate(term = str_remove(term, "cntry")) |>
@@ -63,10 +67,12 @@ plot_sex <- get_plot("cong_sex", title = "Sex")
 plot_ses <- get_plot("ladder_adj", title = "SES")
 plot_skin <- get_plot("skin_adj", title = "Skin colour" , rm_countries = c("Czech Republic", "Hungary"))
 plot_relig <- get_plot("cong_religion", title = "Religion", rm_countries = c("Czech Republic", "Hungary"))
+plot_region <- get_plot("cong_region", title = "Region", rm_countries = c("Czech Republic", "Hungary"))
+plot_fluency <- get_plot("fluency", title = "Fluency")
 
-fig_ols <- plot_grid(plot_sex, plot_ses, plot_skin, plot_relig,  ncol = 2)
+fig_ols <- plot_grid(plot_sex, plot_ses, plot_skin, plot_relig, plot_region,plot_fluency,  ncol = 2)
 
-ggsave(fig_ols, filename =  "./img/fig_ols.png")
+ggsave(fig_ols, width = 10, height = 14, filename =  "./img/fig_ols.png")
 
 
 

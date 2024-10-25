@@ -211,6 +211,10 @@ df_es  <- df_es |> mutate(skin_adj = case_when(
     .default = V001db / 10
 ))
 
+# Adjusting variable fluency 
+# New scale goes from 0 (low) to 1 (high)
+df_es  <- df_es |> mutate(fluency = if_else(V001gaa_1 == 8, NA, V001gaa_1 / 7))
+
 # Creating variable for EqualStrength region
 
 df_es  <-  df_es |>
